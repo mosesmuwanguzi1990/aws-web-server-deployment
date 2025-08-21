@@ -16,11 +16,27 @@ subnet_mapping {
 }
 }
 
-resource "aws_lb_target_group" "front_end" {
-  # ...
+resource "aws_lb_target_group" "frontend" {
+  name     = "frontend2025"
+  port     = 443
+  protocol = "HTTPS"
+  vpc_id   = aws_vpc.moses-vpc.id
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
+    matcher             = "200-299"
+  }
+
+  tags = {
+    Environment = "production"
+  }
 }
 
-resource "aws_lb_listener" "front_end" {
+resource "aws_lb_listener" "frontendlistner" {
   load_balancer_arn = aws_lb.WebALB.arn
   port              = "443"
   protocol          = "HTTPS"
@@ -29,6 +45,13 @@ resource "aws_lb_listener" "front_end" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.front_end.arn
+    target_group_arn = aws_lb_target_group.frontend.arn
   }
+}
+
+# Create a new ALB Target Group attachment
+resource "aws_autoscaling_attachment" "example" {
+  autoscaling_group_name = aws_autoscaling_group.bar.name
+  # Attach the ALB Target Group to the Auto Scaling Group 
+  lb_target_group_arn    = aws_lb_target_group.frontend.arn
 }
