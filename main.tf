@@ -5,17 +5,10 @@ resource "aws_lb" "WebALB" {
   security_groups    = [aws_security_group.ALBSG.id]
   depends_on = [ aws_subnet.private-subnet-a, aws_subnet.private-subnet-b ]
   subnets = [ aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id ]
-  tags = {
+    tags = {
     Environment = "production"
   }
 }
-
-resource "aws_lb" "front_end" {
-subnet_mapping {
-    subnet_id =  aws_subnet.public-subnet-a.id
-}
-}
-
 resource "aws_lb_target_group" "frontend" {
   name     = "frontend2025"
   port     = 443
