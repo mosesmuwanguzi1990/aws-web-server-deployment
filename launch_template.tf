@@ -3,11 +3,15 @@ resource "aws_launch_template" "my_next_template" {
    instance_type = "t2.micro"
    image_id  = "ami-00a790ef5f7f97fbb" 
    key_name = "moses2025"
-  vpc_security_group_ids = [aws_security_group.WebSG.id]
-
-  placement {
-    availability_zone = "us-east-1a"
-  }
+  vpc_security_group_ids = [aws_security_group.ALBSG.id]
+    block_device_mappings {
+        device_name = "/dev/sda1"
+        ebs {
+        volume_size = 10
+        volume_type = "gp3"
+        delete_on_termination = false
+        }
+    }
 }
 
 resource "aws_autoscaling_group" "bar" {

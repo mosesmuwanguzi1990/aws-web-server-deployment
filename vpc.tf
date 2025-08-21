@@ -81,6 +81,7 @@ resource "aws_nat_gateway" "NATGW2" {
 }
 
 resource "aws_route_table" "public-route-table" {
+  depends_on = [ aws_internet_gateway.IGW ]
   vpc_id = aws_vpc.moses-vpc.id
 
   route {
@@ -90,6 +91,7 @@ resource "aws_route_table" "public-route-table" {
 }
 
 resource "aws_route_table" "private-route-table-a" {
+  depends_on = [ aws_nat_gateway.NATGW1 ]
   vpc_id = aws_vpc.moses-vpc.id
 
   route {
@@ -100,6 +102,7 @@ resource "aws_route_table" "private-route-table-a" {
 
 resource "aws_route_table" "private-route-table-b" {
   vpc_id = aws_vpc.moses-vpc.id
+  depends_on = [ aws_nat_gateway.NATGW2 ]
 
   route {
     cidr_block = "10.0.0.0/16"
