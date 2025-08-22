@@ -1,8 +1,8 @@
 resource "aws_vpc" "moses-vpc" {
-  cidr_block       = "10.0.0.0/16"
-  instance_tenancy = "default"
+  cidr_block           = "10.0.0.0/16"
+  instance_tenancy     = "default"
   enable_dns_hostnames = true
-  enable_dns_support = true
+  enable_dns_support   = true
 
   tags = {
     Name = "moses-vpc-project"
@@ -16,12 +16,11 @@ resource "aws_internet_gateway" "IGW" {
     Name = "moses-gateway"
   }
 }
-
-resource "aws_internet_gateway_attachment" "moses-gateway-attachment" {
-  internet_gateway_id = aws_internet_gateway.IGW.id
-  vpc_id              = aws_vpc.moses-vpc.id
-    depends_on = [aws_vpc.moses-vpc]
-}
+# The following resource is commented out because it is not needed in this context. because the internet gateway is already attached to the VPC. using the above resource
+#resource "aws_internet_gateway_attachment" "moses-gateway-attachment" {
+# vpc_id              = aws_vpc.moses-vpc.id
+#   depends_on = [aws_vpc.moses-vpc]
+#}
 
 resource "aws_subnet" "public-subnet-a" {
   vpc_id            = aws_vpc.moses-vpc.id
@@ -81,31 +80,31 @@ resource "aws_nat_gateway" "NATGW2" {
 }
 
 resource "aws_route_table" "public-route-table" {
-  depends_on = [ aws_internet_gateway.IGW ]
-  vpc_id = aws_vpc.moses-vpc.id
+  depends_on = [aws_internet_gateway.IGW]
+  vpc_id     = aws_vpc.moses-vpc.id
 
   route {
-    cidr_block = "10.0.0.0/16"
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.IGW.id
   }
 }
 
 resource "aws_route_table" "private-route-table-a" {
-  depends_on = [ aws_nat_gateway.NATGW1 ]
-  vpc_id = aws_vpc.moses-vpc.id
+  depends_on = [aws_nat_gateway.NATGW1]
+  vpc_id     = aws_vpc.moses-vpc.id
 
   route {
-    cidr_block = "10.0.0.0/16"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.NATGW1.id
   }
 }
 
 resource "aws_route_table" "private-route-table-b" {
-  vpc_id = aws_vpc.moses-vpc.id
-  depends_on = [ aws_nat_gateway.NATGW2 ]
+  vpc_id     = aws_vpc.moses-vpc.id
+  depends_on = [aws_nat_gateway.NATGW2]
 
   route {
-    cidr_block = "10.0.0.0/16"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.NATGW2.id
   }
 }
