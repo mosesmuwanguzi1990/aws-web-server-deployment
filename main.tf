@@ -1,3 +1,4 @@
+### Create an Application Load Balancer (ALB) with HTTPS listener and target group which will point to the Auto Scaling Group created.
 resource "aws_lb" "WebALB" {
   name               = "WebALB"
   internal           = false
@@ -9,12 +10,15 @@ resource "aws_lb" "WebALB" {
     Environment = "production"
   }
 }
+
+## Create a Target Group for the ALB which will point to the Auto Scaling Group created
 resource "aws_lb_target_group" "frontend" {
   name     = "frontend2025"
   port     = 443
   protocol = "HTTPS"
   vpc_id   = aws_vpc.moses-vpc.id
 
+## Health Check for the Target Group which will check the health of the instances in the Auto Scaling Group om port 443
   health_check {
     protocol            = "HTTPS"
     port                = 443
@@ -31,6 +35,7 @@ resource "aws_lb_target_group" "frontend" {
   }
 }
 
+# Create a Listener for the ALB which will listen on port 443 and forward traffic to the Target Group created
 resource "aws_lb_listener" "frontendlistner" {
   load_balancer_arn = aws_lb.WebALB.arn
   port              = "443"
