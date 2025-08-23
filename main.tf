@@ -16,6 +16,8 @@ resource "aws_lb_target_group" "frontend" {
   vpc_id   = aws_vpc.moses-vpc.id
 
   health_check {
+    protocol            = "HTTPS"
+    port                = 443
     path                = "/"
     interval            = 30
     timeout             = 5
