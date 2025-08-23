@@ -44,7 +44,7 @@ resource "aws_lb_listener" "frontendlistner" {
 
 # Create a new ALB Target Group attachment
 resource "aws_autoscaling_attachment" "example" {
-  autoscaling_group_name = aws_autoscaling_group.bar.name
+  autoscaling_group_name = aws_autoscaling_group.web_autoscaling_group.name
   # Attach the ALB Target Group to the Auto Scaling Group 
   lb_target_group_arn = aws_lb_target_group.frontend.arn
 }
