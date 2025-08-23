@@ -1,3 +1,4 @@
+### Launch Template for EC2 Instances and create an Auto Scaling Group which will const of 2 instances
 resource "aws_launch_template" "my_web_template" {
   disable_api_termination = false
   instance_type           = "t2.micro"

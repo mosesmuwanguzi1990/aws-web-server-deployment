@@ -1,3 +1,7 @@
+
+### Create Security Groups for EC2 Instances and Application Load Balancer (ALB) which will allow traffic on port 443 from ALB to EC2 instances and allow SSH access from VPC CIDR to EC2 instances
+
+## Create a Security Group for EC2 Instances
 resource "aws_security_group" "WebSG" {
   name        = "allow_vm_access"
   description = "Allow VM Access"
@@ -32,7 +36,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
 
 
 
-
+## Create a Security Group for Application Load Balancer (ALB)
 resource "aws_security_group" "ALBSG" {
   name        = "allow_alb_access"
   description = "Allow application load balancer Access"
