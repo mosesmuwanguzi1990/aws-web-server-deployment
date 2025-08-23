@@ -8,19 +8,24 @@ resource "aws_vpc" "moses-vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = {
+  tags = merge(
+    local.default_tags,
+    {
     Name = "moses-vpc-project"
   }
+  )
 }
 
 
 ## Create an Internet Gateway and attach it to the VPC created which will be used by the public subnets to access the internet and nat gateways for outbound internet traffic from private subnets
 resource "aws_internet_gateway" "IGW" {
   vpc_id = aws_vpc.moses-vpc.id
-
-  tags = {
+  tags = merge(
+    local.default_tags,
+    {
     Name = "moses-gateway"
   }
+  )
 }
 # The following resource is commented out because it is not needed in this context. because the internet gateway is already attached to the VPC. using the above resource
 #resource "aws_internet_gateway_attachment" "moses-gateway-attachment" {
@@ -34,12 +39,24 @@ resource "aws_subnet" "public-subnet-a" {
   vpc_id            = aws_vpc.moses-vpc.id
   cidr_block        = "10.0.0.0/18"
   availability_zone = "us-east-1a"
+  tags = merge(
+    local.default_tags,
+    {
+      Name = "public-subnet-a"
+    }
+  )
 }
 
 resource "aws_subnet" "public-subnet-b" {
   vpc_id            = aws_vpc.moses-vpc.id
   cidr_block        = "10.0.64.0/18"
   availability_zone = "us-east-1b"
+  tags = merge(
+    local.default_tags,
+    {
+      Name = "public-subnet-b"
+    }
+  )
 }
 
 ## creates private subnets in two different availability zones
@@ -47,46 +64,67 @@ resource "aws_subnet" "private-subnet-a" {
   vpc_id            = aws_vpc.moses-vpc.id
   cidr_block        = "10.0.128.0/18"
   availability_zone = "us-east-1a"
+  tags = merge(
+    local.default_tags,
+    {
+      Name = "private-subnet-a"
+    }
+  )
 }
 
 resource "aws_subnet" "private-subnet-b" {
   vpc_id            = aws_vpc.moses-vpc.id
   cidr_block        = "10.0.192.0/18"
   availability_zone = "us-east-1b"
+  tags = merge(
+    local.default_tags,
+    {
+      Name = "private-subnet-b"
+    }
+  )
 }
 
 ## Create two Elastic IPs for the NAT Gateways
 resource "aws_eip" "nat-eip-1a" {
   domain = "vpc"
-  tags = {
+  tags = merge(
+    local.default_tags,
+  {
     Name = "nat-eip-1a"
   }
+  )
 }
 
 resource "aws_eip" "nat-eip-1b" {
   domain = "vpc"
-  tags = {
+  tags = merge(
+    local.default_tags,{
     Name = "nat-eip-1b"
   }
+  )
 }
-
 
 # Create two NAT Gateways in the public subnets which will be used by the private subnets for outbound internet access
 resource "aws_nat_gateway" "NATGW1" {
   allocation_id = aws_eip.nat-eip-1a.id
   subnet_id     = aws_subnet.public-subnet-a.id
-  tags = {
+  tags = merge(
+    local.default_tags,{
     Name = "NATGW1"
   }
+  )
   depends_on = [aws_internet_gateway.IGW]
 }
 
 resource "aws_nat_gateway" "NATGW2" {
   allocation_id = aws_eip.nat-eip-1b.id
   subnet_id     = aws_subnet.public-subnet-b.id
-  tags = {
+  tags = merge(
+    local.default_tags,
+    {
     Name = " NATGW2"
   }
+  )
   depends_on = [aws_internet_gateway.IGW]
 }
 
@@ -94,7 +132,12 @@ resource "aws_nat_gateway" "NATGW2" {
 resource "aws_route_table" "public-route-table" {
   depends_on = [aws_internet_gateway.IGW]
   vpc_id     = aws_vpc.moses-vpc.id
-
+  tags = merge(
+    local.default_tags,
+    {
+    Name = "public-route-table"
+  }
+  )
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.IGW.id
@@ -105,7 +148,12 @@ resource "aws_route_table" "public-route-table" {
 resource "aws_route_table" "private-route-table-a" {
   depends_on = [aws_nat_gateway.NATGW1]
   vpc_id     = aws_vpc.moses-vpc.id
-
+  tags = merge(
+    local.default_tags,
+    {
+    Name = "private-route-table-a"
+  }
+  )
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.NATGW1.id
@@ -115,7 +163,12 @@ resource "aws_route_table" "private-route-table-a" {
 resource "aws_route_table" "private-route-table-b" {
   vpc_id     = aws_vpc.moses-vpc.id
   depends_on = [aws_nat_gateway.NATGW2]
-
+  tags = merge(
+    local.default_tags,
+    {
+    Name = "private-route-table-b"
+  }
+  )
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.NATGW2.id

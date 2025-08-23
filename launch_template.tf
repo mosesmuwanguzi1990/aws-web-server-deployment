@@ -5,6 +5,12 @@ resource "aws_launch_template" "my_web_template" {
   image_id                = "ami-0360c520857e3138f"
   key_name                = "moses2025"
   vpc_security_group_ids  = [aws_security_group.ALBSG.id]
+  tags = merge(
+    local.default_tags,
+    {
+      Name = "WebServerInstance"
+    },
+  ) 
   user_data               = filebase64("user_data.sh")
   iam_instance_profile {
     name = aws_iam_instance_profile.ec2_instance_profile.name
