@@ -4,7 +4,7 @@ resource "aws_lb" "WebALB" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.ALBSG.id]
-  depends_on         = [aws_subnet.private-subnet-a, aws_subnet.private-subnet-b]
+  depends_on         = [aws_subnet.public-subnet-a, aws_subnet.public-subnet-b]
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
   tags = merge(
     local.default_tags,
